@@ -32,6 +32,7 @@ export type PatchConnection = {
 
 export type Patch = {
   version: string;
+  name: string; 
   nodes: PatchNode[];
   connections: PatchConnection[];
 };

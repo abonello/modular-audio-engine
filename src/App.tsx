@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import Layout from "./ui/Layout";
-import "./ui/Layout.css";
+import Layout from "./ui/Layout/Layout";
+import "./ui/Layout/Layout.css";
 import { PatchProvider } from "./context/PatchContext";
+import { BladeProvider } from "./context/BladeContext";
 import { ModeProvider } from "./context/ModeContext";
 import './App.css'
 
@@ -9,12 +10,14 @@ import './App.css'
 function App() {
   return (
     <PatchProvider>
-      <ModeProvider>
-        <div className="App">
-          <h1>ModularAudioEngine</h1>
-          <Layout />
-        </div>
-      </ModeProvider>
+      <BladeProvider>
+        <ModeProvider>
+          <div className="App">
+            <h1>ModularAudioEngine</h1>
+            <Layout />
+          </div>
+        </ModeProvider>
+      </BladeProvider>
     </PatchProvider>
   );
 }

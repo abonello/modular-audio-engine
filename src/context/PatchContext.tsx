@@ -14,6 +14,7 @@ type PatchContextType = {
 
 const defaultPatch: Patch = {
   version: "0.1",
+  name: "Untitled Synth",
   nodes: [],
   connections: []
 };
