@@ -5,6 +5,7 @@
   font-family: sans-serif;
 }
 
+/* HEADER */
 .header {
   height: 60px;
   display: flex;
@@ -15,39 +16,43 @@
 }
 
 .headerTitle {
-  flex: 1;
   font-size: 18px;
   font-weight: bold;
 }
 
-.headerControls button {
+/* BANNER */
+.banner {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: #2a2a2a;
+  color: white;
+}
+
+.bannerLeft button,
+.bannerRight button {
   margin: 0 6px;
   padding: 6px 10px;
-  background: #2c2c2c;
+  background: #3a3a3a;
   color: white;
   border: none;
   cursor: pointer;
 }
 
-.headerControls button.active {
+.bannerLeft button.active {
   background: #4b9bff;
 }
 
-.bladeToggles button {
-  margin-left: 10px;
-  padding: 6px 10px;
-  background: #2c2c2c;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
+/* MAIN AREA */
 .mainArea {
   flex: 1;
   display: flex;
   overflow: hidden;
 }
 
+/* BLADES */
 .blade {
   width: 260px;
   background: #262626;
@@ -82,6 +87,7 @@
   color: white;
 }
 
+/* FOOTER */
 .footer {
   height: 40px;
   display: flex;

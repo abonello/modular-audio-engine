@@ -9,14 +9,13 @@ import LeftBlade from "./blades/LeftBlade";
 import RightBlade from "./blades/RightBlade";
 
 export default function Layout() {
-  const { mode } = useMode();
-
   return (
     <div className="appRoot">
       <Header />
+      <Banner />
       <div className="mainArea">
         <LeftBlade />
-        <Workspace mode={mode} />
+        <Workspace />
         <RightBlade />
       </div>
       <Footer />
@@ -25,13 +24,19 @@ export default function Layout() {
 }
 
 function Header() {
-  const { mode, setMode } = useMode();
-
   return (
     <header className="header">
       <div className="headerTitle">Modular Audio Engine</div>
+    </header>
+  );
+}
 
-      <div className="headerControls">
+function Banner() {
+  const { mode, setMode } = useMode();
+
+  return (
+    <div className="banner">
+      <div className="bannerLeft">
         <button
           className={mode === "synth-editor" ? "active" : ""}
           onClick={() => setMode("synth-editor")}
@@ -52,15 +57,17 @@ function Header() {
         </button>
       </div>
 
-      <div className="bladeToggles">
-        <button id="leftToggle">☰</button>
-        <button id="rightToggle">☰</button>
+      <div className="bannerRight">
+        <button id="leftToggle">Left Blade</button>
+        <button id="rightToggle">Right Blade</button>
       </div>
-    </header>
+    </div>
   );
 }
 
-function Workspace({ mode }: { mode: string }) {
+function Workspace() {
+  const { mode } = useMode();
+
   return (
     <main className="workspace">
       <div className="workspaceLabel">{mode}</div>
@@ -82,3 +89,4 @@ function Footer() {
     </footer>
   );
 }
+
