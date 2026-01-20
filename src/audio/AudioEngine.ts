@@ -5,6 +5,7 @@
 
 import { Patch } from "../model/PatchTypes";
 
+
 export class AudioEngine {
   private context: AudioContext;
 
@@ -13,12 +14,27 @@ export class AudioEngine {
   }
 
   async start() {
-    // required for browser autoplay restrictions
+    // Must be called from a user gesture
     await this.context.resume();
   }
 
-  loadPatch(patch: Patch) {
-    console.log("Loading patch:", patch);
-    // TODO: implement node creation + connections
+  playTestTone() {
+    const osc = this.context.createOscillator();
+    const gain = this.context.createGain();
+
+    osc.type = "sine";
+    osc.frequency.value = 440;
+
+    gain.gain.value = 0.5;
+
+    // connect
+    osc.connect(gain);
+    gain.connect(this.context.destination);
+
+    // play
+    osc.start();
+
+    // stop after 3 seconds
+    osc.stop(this.context.currentTime + 3);
   }
 }

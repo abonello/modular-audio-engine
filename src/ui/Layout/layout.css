@@ -94,6 +94,12 @@
   color: white;
 }
 
+.testControls {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+}
+
 /* FOOTER */
 .footer {
   height: 40px;
