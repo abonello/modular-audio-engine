@@ -1,0 +1,109 @@
+.appRoot {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: sans-serif;
+}
+
+.header {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  background: #1b1b1b;
+  color: white;
+}
+
+.headerTitle {
+  flex: 1;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.headerControls button {
+  margin: 0 6px;
+  padding: 6px 10px;
+  background: #2c2c2c;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.headerControls button.active {
+  background: #4b9bff;
+}
+
+.bladeToggles button {
+  margin-left: 10px;
+  padding: 6px 10px;
+  background: #2c2c2c;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.mainArea {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.blade {
+  width: 260px;
+  background: #262626;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.2s ease;
+}
+
+.blade.closed {
+  width: 0;
+  overflow: hidden;
+}
+
+.bladeHeader {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #333;
+}
+
+.bladeBody {
+  padding: 10px;
+}
+
+.workspace {
+  flex: 1;
+  background: #0f0f0f;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+.footer {
+  height: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+  background: #1b1b1b;
+  color: white;
+}
+
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.dot.green {
+  background: #2ecc71;
+}
+
+.footerRight span {
+  margin-left: 12px;
+}
