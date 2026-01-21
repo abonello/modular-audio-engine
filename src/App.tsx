@@ -13,7 +13,6 @@ function App() {
       <BladeProvider>
         <ModeProvider>
           <div className="App">
-            <h1>ModularAudioEngine</h1>
             <Layout />
           </div>
         </ModeProvider>
