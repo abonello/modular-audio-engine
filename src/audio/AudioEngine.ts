@@ -14,13 +14,21 @@ export class AudioEngine {
   private context: AudioContext;
   private gain: GainNode;
   private oscillators: OscillatorDef[] = [];
+  private analyser: AnalyserNode;
+  private analyserData: Uint8Array;
 
   constructor() {
     this.context = new AudioContext();
 
+    this.analyser = this.context.createAnalyser();
+    this.analyser.fftSize = 2048;
+    this.analyserData = new Uint8Array(this.analyser.frequencyBinCount);
+
     this.gain = this.context.createGain();
     this.gain.gain.value = 0.5;
-    this.gain.connect(this.context.destination);
+    // this.gain.connect(this.context.destination);
+    this.gain.connect(this.analyser);
+    this.analyser.connect(this.context.destination);
 
     // Default oscillator (440 Hz)
     this.oscillators.push({
@@ -79,5 +87,20 @@ export class AudioEngine {
 
     // stop after 3 seconds
     osc.stop(this.context.currentTime + 3);
+  }
+
+  getAudioLevel(): number {
+    this.analyser.getByteTimeDomainData(this.analyserData);
+
+    // compute RMS
+    let sum = 0;
+    for (let i = 0; i < this.analyserData.length; i++) {
+      const v = (this.analyserData[i] - 128) / 128;
+      sum += v * v;
+    }
+    const rms = Math.sqrt(sum / this.analyserData.length);
+    console.log("RMS:", rms);
+
+    return rms; // 0..1
   }
 }
