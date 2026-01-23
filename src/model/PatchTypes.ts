@@ -23,6 +23,8 @@ export type PatchNode = {
   id: string;
   type: NodeType;
   params?: NodeParam;
+  x?: number;
+  y?: number;
 };
 
 export type PatchConnection = {
@@ -36,3 +38,10 @@ export type Patch = {
   nodes: PatchNode[];
   connections: PatchConnection[];
 };
+
+
+export const isOsc = (n: PatchNode): n is PatchNode & { type: "oscillator" } =>
+  n.type === "oscillator";
+
+export const isGain = (n: PatchNode): n is PatchNode & { type: "gain" } =>
+  n.type === "gain";

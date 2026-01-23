@@ -85,13 +85,19 @@
   padding: 10px;
 }
 
-.workspace {
+/* .workspace {
   flex: 1;
   background: #0f0f0f;
   display: flex;
   justify-content: center;
   align-items: center;
   color: white;
+} */
+
+.workspace {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 .testControls {
@@ -116,6 +122,10 @@
 
 .node.gain {
   background: #444;
+}
+
+.node.oscillator {
+  background: #333;
 }
 
 
