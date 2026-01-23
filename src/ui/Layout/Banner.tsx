@@ -2,7 +2,6 @@
  * src/ui/Layout/Banner.tsx
  */
 
-import React from "react";
 import { useMode } from "../../context/ModeContext";
 import { useBlade } from "../../context/BladeContext";
 import { usePatch } from "../../context/PatchContext";

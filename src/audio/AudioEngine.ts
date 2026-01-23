@@ -3,42 +3,11 @@
  * This is the local backend that interprets the JSON.
  */
 
-import { PatchNode } from "../model/PatchTypes";
+import type { PatchNode } from "../model/PatchTypes";
 
 let nextX = 40;
 
-// export type OscillatorDef = {
-//   id: string;
-//   frequency: number;
-//   type: OscillatorType;
-// };
-
-// export type GainDef = {
-//   id: string;
-//   value: number;
-// };
-
-// export type NodeKind = "osc" | "gain";
-
-// export type NodeDef = {
-//   id: string;
-//   kind: NodeKind;
-//   frequency?: number; // only for osc
-//   type?: OscillatorType; // only for osc
-//   value?: number; // only for gain
-// };
-
-
 export class AudioEngine {
-  // private nodes: NodeDef[] = [];
-  // private context: AudioContext;
-  // private gain: GainNode;
-  // private oscillators: OscillatorDef[] = [];
-  // private gains: GainDef[] = [];
-  // private analyser: AnalyserNode;
-  // private analyserData: Uint8Array;
-  // private outputGain: GainNode;
-
   private nodes: PatchNode[] = [];
   private context: AudioContext;
   private analyser: AnalyserNode;
@@ -53,58 +22,24 @@ export class AudioEngine {
     this.analyser.fftSize = 2048;
     this.analyserData = new Uint8Array(this.analyser.frequencyBinCount);
 
-    // this.gain = this.context.createGain();
-    // this.gain.gain.value = 0.5;
-    // this.gain.connect(this.context.destination);
-    // this.gain.connect(this.analyser);
-    // this.analyser.connect(this.context.destination);
-
     this.outputGain = this.context.createGain();
     this.outputGain.gain.value = 0.5;
 
     // analyser sits just before destination
     this.outputGain.connect(this.analyser);
     this.analyser.connect(this.context.destination);
-
-    // Default oscillator (440 Hz)
-    // this.oscillators.push({
-    //   id: "osc-440",
-    //   frequency: 440,
-    //   type: "sine",
-    // });
   }
 
   async start() {
     
     if (this.started) return;
+
     // Must be called from a user gesture
     await this.context.resume();
     this.started = true;
   }
 
-
   addOscillator(freq: number) {
-    // this.oscillators.push({
-    //   id: crypto.randomUUID(),
-    //   frequency: freq,
-    //   type: "sine",
-    // });
-
-    // this.nodes.push({
-    //   id: crypto.randomUUID(),
-    //   kind: "osc",
-    //   frequency: freq,
-    //   type: "sine",
-    // });
-
-
-    // const node: NodeDef = {
-    //   id: crypto.randomUUID(),
-    //   kind: "osc",
-    //   frequency: freq,
-    //   type: "sine",
-    // };
-
     const node: PatchNode = {
       id: crypto.randomUUID(),
       type: "oscillator",
@@ -121,26 +56,7 @@ export class AudioEngine {
     return node;
   }
 
-
-  
   addGain(value = 0.5) {
-    // this.gains.push({
-    //   id: crypto.randomUUID(),
-    //   value,
-    // });
-
-    // this.nodes.push({
-    //   id: crypto.randomUUID(),
-    //   kind: "gain",
-    //   value,
-    // });
-
-    // const node: NodeDef = {
-    //   id: crypto.randomUUID(),
-    //   kind: "gain",
-    //   value,
-    // };
-
     const node: PatchNode = {
       id: crypto.randomUUID(),
       type: "gain",
@@ -165,15 +81,6 @@ export class AudioEngine {
   playAll(duration = 3) {
     const now = this.context.currentTime;
 
-    // create runtime gain nodes
-    // const runtimeGains = this.gains.map(def => {
-    //   const g = this.context.createGain();
-    //   g.gain.value = def.value;
-    //   g.connect(this.outputGain);
-    //   return g;
-    // });
-
-    // const runtimeGains = this.nodes
     const gainNodes = this.nodes
       .filter(n => n.type === "gain")
       .map(n => {
@@ -184,35 +91,7 @@ export class AudioEngine {
       });
 
     // fallback: if no gain exists, connect directly to output
-    // const targets =
-    //   runtimeGains.length > 0 ? runtimeGains : [this.outputGain];
     const targets = gainNodes.length ? gainNodes : [this.outputGain];
-
-
-    // this.oscillators.forEach(def => {
-    //   const osc = this.context.createOscillator();
-    //   osc.type = def.type;
-    //   osc.frequency.value = def.frequency;
-
-    //   // osc.connect(this.gain);
-    //   targets.forEach(t => osc.connect(t));
-
-    //   osc.start(now);
-    //   osc.stop(now + duration);
-    // });
-
-    // this.nodes
-    //   .filter(n => n.kind === "osc")
-    //   .forEach(def => {
-    //     const osc = this.context.createOscillator();
-    //     osc.type = def.type ?? "sine";
-    //     osc.frequency.value = def.frequency ?? 440;
-
-    //     targets.forEach(t => osc.connect(t));
-
-    //     osc.start(now);
-    //     osc.stop(now + duration);
-    //   });
 
     this.nodes
       .filter(n => n.type === "oscillator")
@@ -227,33 +106,17 @@ export class AudioEngine {
       });
   }
 
-
-  // playTestTone() {
-  //   const osc = this.context.createOscillator();
-  //   const gain = this.context.createGain();
-
-  //   osc.type = "sine";
-  //   osc.frequency.value = 440;
-
-  //   gain.gain.value = 0.5;
-
-  //   // connect
-  //   osc.connect(gain);
-  //   gain.connect(this.context.destination);
-
-  //   // play
-  //   osc.start();
-
-  //   // stop after 3 seconds
-  //   osc.stop(this.context.currentTime + 3);
-  // }
+  get isStarted() {
+    return this.started;
+  }
 
   getNodes() {
     return this.nodes;
   }
 
   getAudioLevel(): number {
-    this.analyser.getByteTimeDomainData(this.analyserData);
+    this.analyserData = new Uint8Array(this.analyser.frequencyBinCount) as Uint8Array;
+
 
     // compute RMS
     let sum = 0;
@@ -265,16 +128,15 @@ export class AudioEngine {
     const rms = Math.sqrt(sum / this.analyserData.length);
     console.log("RMS:", rms);
 
-    return rms; // 0..1
+    return rms; // 0..1A
   }
 
   
   setNodeFrequency(nodeId: string, frequency: number) {
     const node = this.nodes.find(n => n.id === nodeId);
-    // if (!node || node.kind !== "osc") return;
+
     if (!node || node.type !== "oscillator") return;
-    
-    // node.frequency = frequency;
+
     node.params = { ...node.params, frequency };
   }
 }

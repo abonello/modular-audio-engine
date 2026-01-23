@@ -2,7 +2,7 @@
  * src/ui/Layout/Workspace.tsx
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   DndContext,
   useDraggable,
@@ -15,9 +15,6 @@ import type {
 } from "@dnd-kit/core";
 import { audioEngine } from "../../audio/engineInstance";
 import { usePatch } from "../../context/PatchContext";
-// import { AudioEngine } from "../../audio/AudioEngine";
-
-// const engine = new AudioEngine();
 
 function DraggableNode({
   node,
@@ -55,12 +52,9 @@ function DraggableNode({
 }
 
 export default function Workspace({ children }: { children: React.ReactNode }) {
-  // const [oscCount, setOscCount] = useState(0);
   const [nodeCount, setNodeCount] = useState(0);
-  // const [nodes, setNodes] = useState(audioEngine.getNodes());
 
   const { patch, setPatch, selectedNodeId, setSelectedNodeId } = usePatch();
-
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -69,17 +63,6 @@ export default function Workspace({ children }: { children: React.ReactNode }) {
       },
     })
   );
-
-  // useEffect(() => {
-  //   (audioEngine as any)._notifyAdd = () => {
-  //     setNodes([...audioEngine.getNodes()]);
-  //   };
-  // }, []);
-
-  // const handlePlay = async () => {
-  //   await engine.start();   // required for user gesture
-  //   engine.playTestTone();
-  // };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, delta } = event;
@@ -102,55 +85,11 @@ export default function Workspace({ children }: { children: React.ReactNode }) {
     if (audioEngine.isStarted) return;
     await audioEngine.start();
     audioEngine.playAll(3);
-    // audioEngine.playTestTone();
   };
 
    // TEMP: listen for osc additions
   (audioEngine as any)._notifyAdd = () =>
     setNodeCount((n) => n + 1);
-    // setOscCount((n) => n + 1);
-
-
-  // return <main className="workspace">{children}</main>;
-  // return (
-  //   <main className="workspace">
-  //     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-  //       {patch.nodes.map((node) => (
-  //         <div
-  //           key={node.id}
-  //           className={`node ${node.type}`}
-  //           style={{
-  //             position: "absolute",
-  //             left: node.x ?? 0,
-  //             top: node.y ?? 0,
-  //           }}
-  //           // IMPORTANT: this makes it draggable
-  //           draggable
-  //           id={node.id}
-  //           onClick={() => setSelectedNodeId(node.id)}
-  //         >
-  //           {node.type.toUpperCase()}
-  //         </div>
-  //       ))}
-
-  //       {children}
-  //     </DndContext>
-
-  //     <button onClick={handlePlay}>Play</button>
-  //   </main>
-  // );
-
-  // return (
-  //   <main className="workspace">
-  //     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-  //       {patch.nodes.map(node => (
-  //         <DraggableNode key={node.id} node={node} />
-  //       ))}
-  //       {children}
-  //     </DndContext>
-  //     <button onClick={handlePlay}>Play</button>
-  //   </main>
-  // );
 
   return (
     <main className="workspace" style={{ position: "relative", height: "100%" }}>

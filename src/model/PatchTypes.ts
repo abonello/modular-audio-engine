@@ -19,13 +19,32 @@ export type NodeParam = {
   [key: string]: number | string | boolean;
 };
 
-export type PatchNode = {
+export type OscillatorParams = {
+  frequency: number;
+  waveform: string;
+};
+
+export type GainParams = {
+  value: number;
+};
+
+export type OscillatorNode = {
   id: string;
-  type: NodeType;
-  params?: NodeParam;
+  type: "oscillator";
+  params: OscillatorParams;
   x?: number;
   y?: number;
 };
+
+export type GainNode = {
+  id: string;
+  type: "gain";
+  params: GainParams;
+  x?: number;
+  y?: number;
+};
+
+export type PatchNode = OscillatorNode | GainNode;
 
 export type PatchConnection = {
   from: string;
@@ -39,9 +58,8 @@ export type Patch = {
   connections: PatchConnection[];
 };
 
-
-export const isOsc = (n: PatchNode): n is PatchNode & { type: "oscillator" } =>
+export const isOscillatorNode = (n: PatchNode): n is OscillatorNode =>
   n.type === "oscillator";
 
-export const isGain = (n: PatchNode): n is PatchNode & { type: "gain" } =>
+export const isGainNode = (n: PatchNode): n is GainNode =>
   n.type === "gain";

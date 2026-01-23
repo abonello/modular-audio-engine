@@ -10,24 +10,18 @@ import { usePatch } from "../../context/PatchContext";
 
 export default function LeftBlade({ children }: { children: React.ReactNode }) {
   const { leftOpen } = useBlade();
-  const { patch, setPatch } = usePatch();
+  const { setPatch } = usePatch();
 
   const handleAddOsc = () => {
-    // audioEngine.addOscillator(220);
-    const node = audioEngine.addOscillator(220); // return node
-    // setPatch(prev => ({ ...prev, nodes: [...prev.nodes, node] }));
+    const node = audioEngine.addOscillator(220);
+
     setPatch((prev) => ({
       ...prev,
-      nodes: [
-        ...prev.nodes,
-        { ...node, x: 40, y: 80 }  // set a default position
-      ],
+      nodes: [...prev.nodes, node],
     }));
-
   };
 
   const handleAddGain = () => {
-    // audioEngine.addGain(0.5);
     const node = audioEngine.addGain(0.5);
     setPatch(prev => ({ ...prev, nodes: [...prev.nodes, node] }));
   };

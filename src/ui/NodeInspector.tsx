@@ -2,22 +2,22 @@
  * src/ui/NodeInspector.tsx
  */
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePatch } from "../context/PatchContext";
 import { audioEngine } from "../audio/engineInstance";
+import { isOscillatorNode } from "../model/PatchTypes";
 
 export default function NodeInspector() {
   const { patch, selectedNodeId, setPatch, deleteNode } = usePatch();
   const selectedNode = patch.nodes.find(n => n.id === selectedNodeId);
 
-  // use params.frequency
-  const [freq, setFreq] = useState<number>(
-    selectedNode?.params?.frequency ?? 440
-  );
+  const [freq, setFreq] = useState<number>(440);
 
   useEffect(() => {
-    if (selectedNode?.type === "oscillator") {
-      setFreq(selectedNode.params?.frequency ?? 440);
+    if (!selectedNode) return;
+
+    if (isOscillatorNode(selectedNode)) {
+      setFreq(selectedNode.params.frequency);
     }
   }, [selectedNodeId]);
 
@@ -44,18 +44,28 @@ export default function NodeInspector() {
             // update patch
             setPatch(prev => ({
               ...prev,
-              nodes: prev.nodes.map((n) =>
-                n.id === selectedNode.id
-                  ? {
-                      ...n,
-                      params: { ...n.params, frequency: freq },
-                    }
-                  : n
-              ),
+
+              nodes: prev.nodes.map((n) => {
+                if (n.id !== selectedNode.id) return n;
+
+                if (isOscillatorNode(n)) {
+                  return {
+                    ...n,
+                    params: {
+                      ...n.params,
+                      frequency: freq,
+                    },
+                  };
+                }
+
+                return n;
+              }),
             }));
 
-            // update engine
-            audioEngine.setNodeFrequency(selectedNode.id, freq);
+            // update engine ONLY if oscillator
+            if (isOscillatorNode(selectedNode)) {
+              audioEngine.setNodeFrequency(selectedNode.id, freq);
+            }
           }}
         >
           Apply
