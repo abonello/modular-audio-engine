@@ -79,6 +79,7 @@ body {
   display: flex;
   flex-direction: column;
   transition: width 0.2s ease;
+  padding: 20px;
 }
 
 .blade.closed {

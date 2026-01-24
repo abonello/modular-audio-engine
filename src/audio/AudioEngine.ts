@@ -3,7 +3,7 @@
  * This is the local backend that interprets the JSON.
  */
 
-import type { Patch, PatchNode } from "../model/PatchTypes";
+import type { Patch, PatchNode, Waveform } from "../model/PatchTypes";
 
 let nextX = 40;
 
@@ -158,5 +158,12 @@ export class AudioEngine {
     if (!node || node.type !== "oscillator") return;
 
     node.params = { ...node.params, frequency };
+  }
+
+  setNodeWaveform(nodeId: string, waveform: Waveform) {
+    const node = this.nodes.find(n => n.id === nodeId);
+    if (!node || node.type !== "oscillator") return;
+
+    node.params = { ...node.params, waveform };
   }
 }

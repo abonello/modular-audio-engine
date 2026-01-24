@@ -11,7 +11,8 @@ export type NodeType =
   | "combiner"
   | "destination";
 
-export type Waveform = "sine" | "square" | "sawtooth" | "triangle";
+// export type Waveform = "sine" | "square" | "sawtooth" | "triangle";
+export type Waveform = Exclude<OscillatorType, "custom">;
 
 export type FilterType = "lowpass" | "highpass" | "bandpass";
 
@@ -21,7 +22,7 @@ export type NodeParam = {
 
 export type OscillatorParams = {
   frequency: number;
-  waveform: string;
+  waveform: Waveform;
 };
 
 export type GainParams = {

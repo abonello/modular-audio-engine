@@ -6,17 +6,20 @@ import { useEffect, useState } from "react";
 import { usePatch } from "../context/PatchContext";
 import { audioEngine } from "../audio/engineInstance";
 import { isOscillatorNode, isGainNode } from "../model/PatchTypes";
+import type { Waveform } from "../model/PatchTypes";
 
 export default function NodeInspector() {
   const { patch, selectedNodeId, setPatch, deleteNode } = usePatch();
   const selectedNode = patch.nodes.find(n => n.id === selectedNodeId);
   const [freq, setFreq] = useState<number>(440);
+  const [waveform, setWaveform] = useState<Waveform>("sine");
 
   useEffect(() => {
     if (!selectedNode) return;
 
     if (isOscillatorNode(selectedNode)) {
       setFreq(selectedNode.params.frequency);
+      setWaveform(selectedNode.params.waveform);
     }
   }, [selectedNodeId]);
 
@@ -39,6 +42,19 @@ export default function NodeInspector() {
           />
         </div>
 
+        <div>
+          Waveform:
+          <select
+            value={waveform}
+            onChange={(e) => setWaveform(e.target.value as Waveform)}
+          >
+            <option value="sine">sin</option>
+            <option value="triangle">triangle</option>
+            <option value="square">square</option>
+            <option value="sawtooth">saw</option>
+          </select>
+        </div>
+
         <button
           onClick={() => {
             setPatch(prev => ({
@@ -46,12 +62,17 @@ export default function NodeInspector() {
               nodes: prev.nodes.map((n) => {
                 if (n.id !== selectedNode.id) return n;
                 return isOscillatorNode(n)
-                  ? { ...n, params: { ...n.params, frequency: freq } }
+                  ? { ...n, params: {
+                    ...n.params,
+                    frequency: freq,
+                    waveform: waveform
+                  } }
                   : n;
               }),
             }));
 
             audioEngine.setNodeFrequency(selectedNode.id, freq);
+            audioEngine.setNodeWaveform(selectedNode.id, waveform);
           }}
         >
           Apply
