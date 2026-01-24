@@ -5,7 +5,7 @@
 import { useEffect, useState } from "react";
 import { usePatch } from "../context/PatchContext";
 import { audioEngine } from "../audio/engineInstance";
-import { isOscillatorNode, isGainNode } from "../model/PatchTypes";
+import { isOscillatorNode, isGainNode, isDestinationNode} from "../model/PatchTypes";
 import type { Waveform } from "../model/PatchTypes";
 
 export default function NodeInspector() {
@@ -30,10 +30,10 @@ export default function NodeInspector() {
   // ---- OSCILLATOR UI ----
   if (isOscillatorNode(selectedNode)) {
     return (
-      <div>
-        <div>Kind: OSC</div>
+      <div className="bladeRight">
+        <div className="bladeHeader">Kind: OSC</div>
 
-        <div>
+        <div className="bladeItem">
           Frequency:
           <input
             type="number"
@@ -42,7 +42,7 @@ export default function NodeInspector() {
           />
         </div>
 
-        <div>
+        <div className="bladeItem">
           Waveform:
           <select
             value={waveform}
@@ -55,32 +55,34 @@ export default function NodeInspector() {
           </select>
         </div>
 
-        <button
-          onClick={() => {
-            setPatch(prev => ({
-              ...prev,
-              nodes: prev.nodes.map((n) => {
-                if (n.id !== selectedNode.id) return n;
-                return isOscillatorNode(n)
-                  ? { ...n, params: {
-                    ...n.params,
-                    frequency: freq,
-                    waveform: waveform
-                  } }
-                  : n;
-              }),
-            }));
+        <div className="bladeButtonWrapper">
+          <button
+            onClick={() => {
+              setPatch(prev => ({
+                ...prev,
+                nodes: prev.nodes.map((n) => {
+                  if (n.id !== selectedNode.id) return n;
+                  return isOscillatorNode(n)
+                    ? { ...n, params: {
+                      ...n.params,
+                      frequency: freq,
+                      waveform: waveform
+                    } }
+                    : n;
+                }),
+              }));
 
-            audioEngine.setNodeFrequency(selectedNode.id, freq);
-            audioEngine.setNodeWaveform(selectedNode.id, waveform);
-          }}
-        >
-          Apply
-        </button>
+              audioEngine.setNodeFrequency(selectedNode.id, freq);
+              audioEngine.setNodeWaveform(selectedNode.id, waveform);
+            }}
+          >
+            Apply
+          </button>
 
-        <button onClick={() => deleteNode(selectedNode.id)}>
-          Delete Node
-        </button>
+          <button className="btnDelete" onClick={() => deleteNode(selectedNode.id)}>
+            Delete Node
+          </button>
+        </div>
       </div>
     );
   }
@@ -88,10 +90,10 @@ export default function NodeInspector() {
   // ---- GAIN UI ----
   if (isGainNode(selectedNode)) {
     return (
-      <div>
-        <div>Kind: GAIN</div>
+      <div className="bladeRight">
+        <div className="bladeHeader">Kind: GAIN</div>
 
-        <div>
+        <div className="bladeItem">
           Gain:
           <input
             type="range"
@@ -112,15 +114,28 @@ export default function NodeInspector() {
               }));
             }}
           />
+          <div>{selectedNode.params.value.toFixed(2)}</div>
         </div>
 
-        <div>{selectedNode.params.value.toFixed(2)}</div>
-
-        <button onClick={() => deleteNode(selectedNode.id)}>
-          Delete Node
-        </button>
+        <div className="bladeButtonWrapper">
+          <button className="btnDelete" onClick={() => deleteNode(selectedNode.id)}>
+            Delete Node
+          </button>
+        </div>
       </div>
     );
+  }
+
+  // ---- Destination UI ----
+  if (isDestinationNode(selectedNode)) {
+    return  (
+      <div className="bladeRight">
+        <div className="bladeHeader">Kind: Destination</div>
+        <p>There is nothing that can be configured for this node.</p>
+        <div className="bladeButtonWrapper">
+          <p>You cannot delete this destination node. It represents the hardware.</p>
+        </div>
+      </div>);
   }
 
   // ---- FALLBACK ----

@@ -53,6 +53,9 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
+.btnDelete {
+  background-color: #ed4233
+}
 
 @media (prefers-color-scheme: light) {
   :root {

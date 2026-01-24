@@ -72,3 +72,6 @@ export const isOscillatorNode = (n: PatchNode): n is OscillatorNode =>
 
 export const isGainNode = (n: PatchNode): n is GainNode =>
   n.type === "gain";
+
+export const isDestinationNode = (n: PatchNode): n is DestinationNode =>
+  n.type === "destination";
