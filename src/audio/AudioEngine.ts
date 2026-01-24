@@ -3,7 +3,7 @@
  * This is the local backend that interprets the JSON.
  */
 
-import type { Patch, PatchNode, Waveform } from "../model/PatchTypes";
+import type { Patch, PatchNode, Waveform, FilterType } from "../model/PatchTypes";
 
 let nextX = 40;
 
@@ -76,6 +76,27 @@ export class AudioEngine {
     return node;
   }
 
+  addFilter() {
+    const node: PatchNode = {
+      id: crypto.randomUUID(),
+      type: "filter",
+      params: {
+        type: "lowpass",
+        cutoff: 1000,
+        resonance: 1.5,
+      },
+      x: nextX,
+      y: 80,
+    };
+
+    nextX += 140;
+    this.nodes.push(node);
+
+    (this as any)._notifyAdd?.();
+
+    return node;
+  }
+
   deleteNode(nodeId: string) {
     this.nodes = this.nodes.filter(n => n.id !== nodeId);
   }
@@ -103,6 +124,14 @@ export class AudioEngine {
 
       if (n.type === "destination") {
         webNodes.set(n.id, this.destinationInput);
+      }
+
+      if (n.type === "filter") {
+        const filter = this.context.createBiquadFilter();
+        filter.type = n.params.type;
+        filter.frequency.value = n.params.cutoff;
+        filter.Q.value = n.params.resonance;
+        webNodes.set(n.id, filter);
       }
     });
 
@@ -165,5 +194,38 @@ export class AudioEngine {
     if (!node || node.type !== "oscillator") return;
 
     node.params = { ...node.params, waveform };
+  }
+
+  setNodeFilterType(nodeId: string, type: FilterType) {
+    const node = this.nodes.find(n => n.id === nodeId);
+    if (!node || node.type !== "filter") return;
+    node.params = { ...node.params, type };
+  }
+
+  setNodeFilterCutoff(nodeId: string, cutoff: number) {
+    const node = this.nodes.find(n => n.id === nodeId);
+    if (!node || node.type !== "filter") return;
+    node.params = { ...node.params, cutoff };
+  }
+
+  setNodeFilterResonance(nodeId: string, resonance: number) {
+    const node = this.nodes.find(n => n.id === nodeId);
+    if (!node || node.type !== "filter") return;
+    node.params = { ...node.params, resonance };
+    console.log("Resonance set to:", resonance);
+  }
+
+  setNodeFilter(nodeId: string, type: FilterType, cutoff: number, resonance: number) {
+    const node = this.nodes.find(n => n.id === nodeId);
+    if (!node || node.type !== "filter") return;
+
+    console.log("Resonance set to:", resonance);
+
+    node.params = {
+      ...node.params,
+      type,
+      cutoff,
+      resonance,
+    };
   }
 }

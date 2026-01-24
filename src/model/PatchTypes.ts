@@ -14,7 +14,8 @@ export type NodeType =
 // export type Waveform = "sine" | "square" | "sawtooth" | "triangle";
 export type Waveform = Exclude<OscillatorType, "custom">;
 
-export type FilterType = "lowpass" | "highpass" | "bandpass";
+// export type FilterType = "lowpass" | "highpass" | "bandpass";
+export type FilterType = "lowpass" | "highpass";
 
 export type NodeParam = {
   [key: string]: number | string | boolean;
@@ -27,6 +28,12 @@ export type OscillatorParams = {
 
 export type GainParams = {
   value: number;
+};
+
+export type FilterParams = {
+  type: FilterType;
+  cutoff: number;
+  resonance: number;
 };
 
 export type OscillatorNode = {
@@ -52,7 +59,15 @@ export type DestinationNode = {
   y?: number;
 };
 
-export type PatchNode = OscillatorNode | GainNode | DestinationNode;
+export type FilterNode = {
+  id: string;
+  type: "filter";
+  params: FilterParams;
+  x?: number;
+  y?: number;
+};
+
+export type PatchNode = OscillatorNode | GainNode | FilterNode | DestinationNode;
 
 export type PatchConnection = {
   id: string;
@@ -75,3 +90,6 @@ export const isGainNode = (n: PatchNode): n is GainNode =>
 
 export const isDestinationNode = (n: PatchNode): n is DestinationNode =>
   n.type === "destination";
+
+export const isFilterNode = (n: PatchNode): n is FilterNode =>
+  n.type === "filter";

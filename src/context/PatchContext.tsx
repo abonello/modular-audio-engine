@@ -13,9 +13,14 @@ type PatchContextType = {
   setPatch: React.Dispatch<React.SetStateAction<Patch>>;
   selectedNodeId: string | null;
   setSelectedNodeId: React.Dispatch<React.SetStateAction<string | null>>;
+
   deleteNode: (nodeId: string) => void;
   addConnection: (fromId: string, toId: string) => void;
   deleteConnection: (connectionId: string) => void;
+
+  addOscillator: (frequency?: number) => void;
+  addGain: (gain?: number) => void;
+  addFilter: () => void;
 };
 
 const defaultPatch: Patch = {
@@ -52,6 +57,30 @@ export function PatchProvider({ children }: { children: React.ReactNode }) {
     }
 
     audioEngine.deleteNode(nodeId);
+  };
+
+  const addOscillator = (frequency = 220) => {
+    const node = audioEngine.addOscillator(frequency);
+    setPatch(prev => ({
+      ...prev,
+      nodes: [...prev.nodes, node],
+    }));
+  };
+
+  const addGain = (gain = 0.5) => {
+    const node = audioEngine.addGain(gain);
+    setPatch(prev => ({
+      ...prev,
+      nodes: [...prev.nodes, node],
+    }));
+  };
+
+  const addFilter = () => {
+    const node = audioEngine.addFilter();
+    setPatch(prev => ({
+      ...prev,
+      nodes: [...prev.nodes, node],
+    }));
   };
 
   const addConnection = (fromId: string, toId: string) => {
@@ -91,6 +120,9 @@ export function PatchProvider({ children }: { children: React.ReactNode }) {
       deleteNode,
       addConnection,
       deleteConnection,
+      addOscillator,
+      addGain,
+      addFilter,
     }}>
       {children}
     </PatchContext.Provider>

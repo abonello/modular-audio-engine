@@ -7,6 +7,7 @@ import { usePatch } from "../../../context/PatchContext";
 import { useDraggable } from "@dnd-kit/core";
 import { OscillatorIcon } from "../../NodeIcons/OscillatorIcon";
 import { GainIcon } from "../../NodeIcons/GainIcon";
+import { FilterIcon } from "../../NodeIcons/FilterIcon";
 import { DestinationIcon } from "../../NodeIcons/DestinationIcon";
 
 export const WorkspaceNode = forwardRef<HTMLDivElement, { node: any; onClick: () => void }>(
@@ -43,6 +44,7 @@ export const WorkspaceNode = forwardRef<HTMLDivElement, { node: any; onClick: ()
         {node.type === "oscillator" && <OscillatorIcon />}
         {node.type === "gain" && <GainIcon />}
         {node.type === "destination" && <DestinationIcon />}
+        {node.type === "filter" && <FilterIcon />}
       </div>
     );
   }
