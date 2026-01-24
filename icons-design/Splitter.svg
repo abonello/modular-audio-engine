@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" color="#fff">
+  <!-- Circle body -->
+  <!-- <circle cx="16" cy="14" r="7" stroke="currentColor" stroke-width="2" fill="none"/> -->
+  <circle cx="16" cy="20" r="7" stroke="currentColor" stroke-width="2" fill="none"/>
+
+  <!-- Top input line -->
+  <!-- <path d="M 16 1 L 16 7" stroke="currentColor" stroke-width="2"/> -->
+  <path d="M 16 1 L 16 10" stroke="currentColor" stroke-width="2"/>
+
+  <!-- Arrow at circle edge pointing down -->
+  <!-- <path d="M 16 7 L 13.5 10 L 18.5 10 Z" fill="currentColor"/> -->
+  <path d="M 16 12 L 13.5 8 L 18.5 8 Z" fill="currentColor"/>
+
+  <!-- Bottom outputs -->
+  <g transform="translate(0,6)">
+    <path d="M 13 20 L 10 25" stroke="currentColor" stroke-width="2"/>
+    <path d="M 16 20 L 16 26" stroke="currentColor" stroke-width="2"/>
+    <path d="M 19 20 L 22 25" stroke="currentColor" stroke-width="2"/>
+  </g>
+  <!-- <path d="M 9 20 L 11 26" stroke="currentColor" stroke-width="2"/>
+  <path d="M 16 20 L 16 26" stroke="currentColor" stroke-width="2"/>
+  <path d="M 23 20 L 21 26" stroke="currentColor" stroke-width="2"/> -->
+</svg>

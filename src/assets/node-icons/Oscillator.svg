@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" color="#fff">
+  <!-- Circle body -->
+  <circle cx="16" cy="16" r="12" stroke="currentColor" stroke-width="2" fill="none"/>
+
+  <!-- Sine wave -->
+  <path d="M 6 18 C 9 10, 13 24, 16 16 C 19 8, 23 24, 26 18" stroke="currentColor" stroke-width="2" fill="none"/>
+</svg>

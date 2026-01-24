@@ -44,9 +44,17 @@ export type GainNode = {
   y?: number;
 };
 
-export type PatchNode = OscillatorNode | GainNode;
+export type DestinationNode = {
+  id: string;
+  type: "destination";
+  x?: number;
+  y?: number;
+};
+
+export type PatchNode = OscillatorNode | GainNode | DestinationNode;
 
 export type PatchConnection = {
+  id: string;
   from: string;
   to: string;
 };

@@ -5,12 +5,11 @@
 import { useEffect, useState } from "react";
 import { usePatch } from "../context/PatchContext";
 import { audioEngine } from "../audio/engineInstance";
-import { isOscillatorNode } from "../model/PatchTypes";
+import { isOscillatorNode, isGainNode } from "../model/PatchTypes";
 
 export default function NodeInspector() {
   const { patch, selectedNodeId, setPatch, deleteNode } = usePatch();
   const selectedNode = patch.nodes.find(n => n.id === selectedNodeId);
-
   const [freq, setFreq] = useState<number>(440);
 
   useEffect(() => {
@@ -25,7 +24,63 @@ export default function NodeInspector() {
     return <div>Select a node</div>;
   }
 
-  if (selectedNode.type === "oscillator") {
+
+
+  // if (selectedNode.type === "oscillator") {
+  //   return (
+  //     <div>
+  //       <div>Kind: OSC</div>
+
+  //       <div>
+  //         Frequency:
+  //         <input
+  //           type="number"
+  //           value={freq}
+  //           onChange={(e) => setFreq(Number(e.target.value))}
+  //         />
+  //       </div>
+
+  //       <button
+  //         onClick={() => {
+  //           // update patch
+  //           setPatch(prev => ({
+  //             ...prev,
+
+  //             nodes: prev.nodes.map((n) => {
+  //               if (n.id !== selectedNode.id) return n;
+
+  //               if (isOscillatorNode(n)) {
+  //                 return {
+  //                   ...n,
+  //                   params: {
+  //                     ...n.params,
+  //                     frequency: freq,
+  //                   },
+  //                 };
+  //               }
+
+  //               return n;
+  //             }),
+  //           }));
+
+  //           // update engine ONLY if oscillator
+  //           if (isOscillatorNode(selectedNode)) {
+  //             audioEngine.setNodeFrequency(selectedNode.id, freq);
+  //           }
+  //         }}
+  //       >
+  //         Apply
+  //       </button>
+  //       <button onClick={() => deleteNode(selectedNode.id)}>
+  //         Delete Node
+  //       </button>
+  //     </div>
+  //   );
+  // }
+
+
+  // ---- OSCILLATOR UI ----
+  if (isOscillatorNode(selectedNode)) {
     return (
       <div>
         <div>Kind: OSC</div>
@@ -41,35 +96,22 @@ export default function NodeInspector() {
 
         <button
           onClick={() => {
-            // update patch
             setPatch(prev => ({
               ...prev,
-
               nodes: prev.nodes.map((n) => {
                 if (n.id !== selectedNode.id) return n;
-
-                if (isOscillatorNode(n)) {
-                  return {
-                    ...n,
-                    params: {
-                      ...n.params,
-                      frequency: freq,
-                    },
-                  };
-                }
-
-                return n;
+                return isOscillatorNode(n)
+                  ? { ...n, params: { ...n.params, frequency: freq } }
+                  : n;
               }),
             }));
 
-            // update engine ONLY if oscillator
-            if (isOscillatorNode(selectedNode)) {
-              audioEngine.setNodeFrequency(selectedNode.id, freq);
-            }
+            audioEngine.setNodeFrequency(selectedNode.id, freq);
           }}
         >
           Apply
         </button>
+
         <button onClick={() => deleteNode(selectedNode.id)}>
           Delete Node
         </button>
@@ -77,11 +119,45 @@ export default function NodeInspector() {
     );
   }
 
-  return (
-    <div>
-      Gain node
-      <button onClick={() => deleteNode(selectedNode.id)}>
-        Delete Node
-      </button>
-    </div>);
+  // ---- GAIN UI ----
+  if (isGainNode(selectedNode)) {
+    return (
+      <div>
+        <div>Kind: GAIN</div>
+
+        <div>
+          Gain:
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.01}
+            value={selectedNode.params.value}
+            onChange={(e) => {
+              const newValue = parseFloat(e.target.value);
+
+              setPatch((prev) => ({
+                ...prev,
+                nodes: prev.nodes.map((n) =>
+                  n.id === selectedNode.id && isGainNode(n)
+                    ? { ...n, params: { ...n.params, value: newValue } }
+                    : n
+                ),
+              }));
+            }}
+          />
+        </div>
+
+        <div>{selectedNode.params.value.toFixed(2)}</div>
+
+        <button onClick={() => deleteNode(selectedNode.id)}>
+          Delete Node
+        </button>
+      </div>
+    );
+  }
+
+
+  // ---- FALLBACK ----
+  return <div>Unknown node type</div>;
 }

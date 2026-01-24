@@ -5,7 +5,7 @@
 
 
 import React, { createContext, useContext, useState } from "react";
-import type { Patch } from "../model/PatchTypes";
+import type { Patch, PatchConnection } from "../model/PatchTypes";
 import { audioEngine } from "../audio/engineInstance";
 
 type PatchContextType = {
@@ -14,12 +14,21 @@ type PatchContextType = {
   selectedNodeId: string | null;
   setSelectedNodeId: React.Dispatch<React.SetStateAction<string | null>>;
   deleteNode: (nodeId: string) => void;
+  addConnection: (fromId: string, toId: string) => void;
+  deleteConnection: (connectionId: string) => void;
 };
 
 const defaultPatch: Patch = {
   version: "0.1",
   name: "Untitled Synth",
-  nodes: [],
+  nodes: [
+    {
+      id: crypto.randomUUID(),
+      type: "destination",
+      x: 400,
+      y: 520,
+    }
+  ],
   connections: []
 };
 
@@ -29,7 +38,6 @@ export function PatchProvider({ children }: { children: React.ReactNode }) {
   const [patch, setPatch] = useState<Patch>(defaultPatch);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
-  // ---- Add this here ----
   const deleteNode = (nodeId: string) => {
     setPatch((prev) => ({
       ...prev,
@@ -46,6 +54,34 @@ export function PatchProvider({ children }: { children: React.ReactNode }) {
     audioEngine.deleteNode(nodeId);
   };
 
+  const addConnection = (fromId: string, toId: string) => {
+    setPatch((prev) => {
+      const exists = prev.connections.some(
+        (c) => c.from === fromId && c.to === toId
+      );
+
+      if (exists) return prev;
+
+      const connection: PatchConnection = {
+        id: crypto.randomUUID(),
+        from: fromId,
+        to: toId,
+      };
+
+      return {
+        ...prev,
+        connections: [...prev.connections, connection],
+      };
+    });
+  };
+
+  const deleteConnection = (connectionId: string) => {
+    setPatch((prev) => ({
+      ...prev,
+      connections: prev.connections.filter(c => c.id !== connectionId),
+    }));
+  };
+
   return (
     <PatchContext.Provider value={{
       patch,
@@ -53,6 +89,8 @@ export function PatchProvider({ children }: { children: React.ReactNode }) {
       selectedNodeId,
       setSelectedNodeId,
       deleteNode,
+      addConnection,
+      deleteConnection,
     }}>
       {children}
     </PatchContext.Provider>
