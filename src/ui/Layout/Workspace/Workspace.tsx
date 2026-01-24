@@ -71,6 +71,7 @@ export default function Workspace({ children }: { children: React.ReactNode }) {
         ))}
       </DndContext>
       <ConnectionLayer nodeRefs={nodeRefs} />
+      {children}
 
       <button onClick={handlePlay}>Play</button>
     </main>
