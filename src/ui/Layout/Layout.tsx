@@ -6,7 +6,7 @@ import Header from "./Header";
 import Banner from "./Banner";
 import LeftBlade from "./LeftBlade";
 import RightBlade from "./RightBlade";
-import Workspace from "./Workspace";
+import Workspace from "./Workspace/Workspace";
 import Footer from "./Footer";
 
 
