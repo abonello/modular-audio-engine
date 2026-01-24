@@ -24,61 +24,6 @@ export default function NodeInspector() {
     return <div>Select a node</div>;
   }
 
-
-
-  // if (selectedNode.type === "oscillator") {
-  //   return (
-  //     <div>
-  //       <div>Kind: OSC</div>
-
-  //       <div>
-  //         Frequency:
-  //         <input
-  //           type="number"
-  //           value={freq}
-  //           onChange={(e) => setFreq(Number(e.target.value))}
-  //         />
-  //       </div>
-
-  //       <button
-  //         onClick={() => {
-  //           // update patch
-  //           setPatch(prev => ({
-  //             ...prev,
-
-  //             nodes: prev.nodes.map((n) => {
-  //               if (n.id !== selectedNode.id) return n;
-
-  //               if (isOscillatorNode(n)) {
-  //                 return {
-  //                   ...n,
-  //                   params: {
-  //                     ...n.params,
-  //                     frequency: freq,
-  //                   },
-  //                 };
-  //               }
-
-  //               return n;
-  //             }),
-  //           }));
-
-  //           // update engine ONLY if oscillator
-  //           if (isOscillatorNode(selectedNode)) {
-  //             audioEngine.setNodeFrequency(selectedNode.id, freq);
-  //           }
-  //         }}
-  //       >
-  //         Apply
-  //       </button>
-  //       <button onClick={() => deleteNode(selectedNode.id)}>
-  //         Delete Node
-  //       </button>
-  //     </div>
-  //   );
-  // }
-
-
   // ---- OSCILLATOR UI ----
   if (isOscillatorNode(selectedNode)) {
     return (
@@ -156,7 +101,6 @@ export default function NodeInspector() {
       </div>
     );
   }
-
 
   // ---- FALLBACK ----
   return <div>Unknown node type</div>;

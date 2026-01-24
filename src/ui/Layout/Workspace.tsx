@@ -73,7 +73,6 @@ const DraggableNode = forwardRef<HTMLDivElement, { node: any; onClick: () => voi
 
 export default function Workspace({ children }: { children: React.ReactNode }) {
   const [nodeCount, setNodeCount] = useState(0);
-  // const nodeRefs = React.useRef<{ [id: string]: HTMLDivElement | null }>({});
   const nodeRefs = React.useRef<Record<string, HTMLDivElement | null>>({});
 
   const { patch, setPatch, selectedNodeId, setSelectedNodeId, deleteConnection } = usePatch();
@@ -106,8 +105,6 @@ export default function Workspace({ children }: { children: React.ReactNode }) {
   };
   
   const handlePlay = async () => {
-    // if (audioEngine.isStarted) return;
-    // await audioEngine.start();
     if (!audioEngine.isStarted) {
       await audioEngine.start();
     }
@@ -126,8 +123,6 @@ export default function Workspace({ children }: { children: React.ReactNode }) {
             key={node.id}
             node={node}
             onClick={() => setSelectedNodeId(node.id)}
-            // ref={(el: HTMLDivElement) => (nodeRefs.current[node.id] = el)}
-            // ref={(el) => (nodeRefs.current[node.id] = el)}
             ref={(el) => {
               nodeRefs.current[node.id] = el;
             }}
@@ -141,12 +136,8 @@ export default function Workspace({ children }: { children: React.ReactNode }) {
           inset: 0,
           width: "100%",
           height: "100%",
-          pointerEvents: "none", // lines are not clickable yet
-          // pointerEvents: "auto",
-          // zIndex: 100
+          pointerEvents: "none",
         }}
-        // viewBox="0 0 1000 1000"
-        // preserveAspectRatio="none"
       >
         <defs>
           <marker
@@ -162,12 +153,9 @@ export default function Workspace({ children }: { children: React.ReactNode }) {
           </marker>
         </defs>
         {patch.connections.map((c) => {
-          // const fromNode = patch.nodes.find(n => n.id === c.from);
-          // const toNode = patch.nodes.find(n => n.id === c.to);
           const fromEl = nodeRefs.current[c.from];
           const toEl = nodeRefs.current[c.to];
 
-          // if (!fromNode || !toNode) return null;
           if (!fromEl || !toEl) {
             console.log("Missing ref for connection", c);
             return null;
@@ -179,11 +167,6 @@ export default function Workspace({ children }: { children: React.ReactNode }) {
           // Workspace bounding box to convert to SVG coords
           const workspaceEl = document.querySelector(".workspace");
           const wsRect = workspaceEl?.getBoundingClientRect() ?? { left: 0, top: 0 };
-
-          // const x1 = fromRect.left + fromRect.width / 2 - wsRect.left;
-          // const y1 = fromRect.top + fromRect.height / 2 - wsRect.top;
-          // const x2 = toRect.left + toRect.width / 2 - wsRect.left;
-          // const y2 = toRect.top + toRect.height / 2 - wsRect.top;
 
           const fromCenterX = fromRect.left + fromRect.width / 2;
           const fromCenterY = fromRect.top + fromRect.height / 2;
@@ -220,30 +203,7 @@ export default function Workspace({ children }: { children: React.ReactNode }) {
           x2 -= wsRect.left;
           y2 -= wsRect.top;
 
-          console.log(`Line drawn from x1: ${x1}, y1: ${y1} to x2: ${x2}, y2: ${y2}`)
-
-          // return (
-          //   <line
-          //     key={c.id}
-          //     x1={fromNode.x ?? 0}
-          //     y1={fromNode.y ?? 0}
-          //     x2={toNode.x ?? 0}
-          //     y2={toNode.y ?? 0}
-          //     stroke="white"
-          //     strokeWidth="2"
-          //   />
-          // );
-
           return (
-            // <line
-            //   key={c.id}
-            //   x1={x1}
-            //   y1={y1}
-            //   x2={x2}
-            //   y2={y2}
-            //   stroke="white"
-            //   strokeWidth="2"
-            // />
             <line
               key={c.id}
               x1={x1}
@@ -262,7 +222,6 @@ export default function Workspace({ children }: { children: React.ReactNode }) {
           );
         })}
       </svg>
-
 
       <button onClick={handlePlay}>Play</button>
     </main>
