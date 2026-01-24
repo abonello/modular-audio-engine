@@ -1,8 +1,18 @@
+body {
+  margin: 0;
+  width: 100vw;
+  max-height: 100vh;
+  overflow-y: hidden;
+}
+
 .appRoot {
   height: 100vh;
   display: flex;
   flex-direction: column;
   font-family: sans-serif;
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
 }
 
 /* HEADER */
