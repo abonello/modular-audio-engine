@@ -33,34 +33,6 @@ export default function NodeInspector() {
     }
   }, [selectedNodeId]);
 
-
-  // const minFreq = 20;
-  // const maxFreq = 20000;
-
-  // const sliderToFreq = (value: number) => {
-  //   const minLog = Math.log10(minFreq);
-  //   const maxLog = Math.log10(maxFreq);
-
-  //   const fraction = value / 1000; // slider value 0..1000
-  //   const freqLog = minLog + fraction * (maxLog - minLog);
-
-  //   return Math.pow(10, freqLog);
-  // };
-
-  // const freqToSlider = (freq: number) => {
-  //   const minLog = Math.log10(minFreq);
-  //   const maxLog = Math.log10(maxFreq);
-
-  //   const freqLog = Math.log10(freq);
-  //   const fraction = (freqLog - minLog) / (maxLog - minLog);
-
-  //   return fraction * 1000;
-  // };
-
-
-
-
-
   if (!selectedNode) {
     return <div>Select a node</div>;
   }
@@ -187,25 +159,6 @@ export default function NodeInspector() {
 
         <div className="bladeItem">
           Cutoff:
-          {/* <input
-            type="number"
-            value={cutoff}
-            onChange={(e) => setCutoff(Number(e.target.value))}
-            min={20}
-            max={20000}
-            step={1}
-          /> */}
-          {/* <input
-            type="range"
-            min={0}
-            max={1000}
-            step={1}
-            value={freqToSlider(cutoff)}
-            onChange={(e) => {
-              const newFreq = sliderToFreq(Number(e.target.value));
-              setCutoff(newFreq);
-            }}
-          /> */}
           <input
             type="range"
             min={0}
