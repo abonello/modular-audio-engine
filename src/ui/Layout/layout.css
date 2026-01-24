@@ -3,6 +3,7 @@ body {
   width: 100vw;
   max-height: 100vh;
   overflow-y: hidden;
+  background-color: #353535;
 }
 
 .appRoot {
@@ -13,6 +14,7 @@ body {
   width: 100%;
   max-width: 1500px;
   margin: 0 auto;
+  background-color: #242424;
 }
 
 /* HEADER */
