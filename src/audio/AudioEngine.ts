@@ -13,9 +13,12 @@ import type {
   TargetConnectionType
 } from "../model/PatchTypes";
 
-let nextX = 40;
+
+// let nextX = 40;
+// let nextY = 80;
 
 export class AudioEngine {
+  private workspaceEl: HTMLElement | null = null;
   private nodes: PatchNode[] = [];
   private webNodes: Map<string, AudioNode> = new Map();
   private context: AudioContext;
@@ -23,6 +26,15 @@ export class AudioEngine {
   private analyserData: Uint8Array<ArrayBuffer>;
   private destinationInput: GainNode;
   private started = false;
+  private nextX = 80;
+  private nextY = 80;
+  private readonly INITIAL_X = 80;
+  private readonly INITIAL_Y = 80;
+  private readonly SPACING = 50;
+  private readonly ROW_HEIGHT = 80;
+  private readonly MAX_ROWS = 2;
+  private readonly MARGIN = 120;
+
 
   constructor() {
     this.context = new AudioContext();
@@ -50,16 +62,46 @@ export class AudioEngine {
     this.started = true;
   }
 
+  // private advanceNextPosition(workspaceRef: React.RefObject<HTMLDivElement>) {
+  private advanceNextPosition() {
+    // const workspaceWidth = window.innerWidth;
+    // const workspaceWidth =
+    //   workspaceRef.current?.getBoundingClientRect().width ?? window.innerWidth;
+    const workspaceWidth = this.workspaceEl?.getBoundingClientRect().width ?? window.innerWidth;
+
+    // const margin = 120;
+    // const maxX = workspaceWidth - margin;
+    const maxX = workspaceWidth - this.MARGIN;
+
+    // this.nextX += 140;
+    this.nextX += this.SPACING;
+
+    if (this.nextX > maxX) {
+      // this.nextX = 80;
+      this.nextX = this.INITIAL_X;
+      // this.nextY += 160;
+      this.nextY += this.ROW_HEIGHT;
+    }
+
+    if (this.nextY > this.ROW_HEIGHT * this.MAX_ROWS) {
+      this.nextY = this.INITIAL_Y;
+      // this.nextY = 80;
+    }
+  }
+
   addOscillator(freq: number) {
     const node: PatchNode = {
       id: crypto.randomUUID(),
       type: "oscillator",
       params: { frequency: freq, waveform: "sine" },
-      x: nextX,
-      y: 80,
+      x: this.nextX,
+      y: this.nextY,
+      // x: nextX,
+      // y: 80,
     };
 
-    nextX += 140;
+    // nextX += 140;
+    this.advanceNextPosition();
     this.nodes.push(node);
     // temporary UI hook
     (this as any)._notifyAdd?.();
@@ -72,11 +114,14 @@ export class AudioEngine {
       id: crypto.randomUUID(),
       type: "gain",
       params: { value },
-      x: nextX,   // default x
-      y: 80,    // default y
+      x: this.nextX,
+      y: this.nextY,
+      // x: nextX,   // default x
+      // y: 80,    // default y
     };
 
-    nextX += 140;
+    // nextX += 140;
+    this.advanceNextPosition();
     this.nodes.push(node);
 
     // temporary UI hook
@@ -94,11 +139,14 @@ export class AudioEngine {
         cutoff: 1000,
         resonance: 1.5,
       },
-      x: nextX,
-      y: 80,
+      x: this.nextX,
+      y: this.nextY,
+      // x: nextX,
+      // y: 80,
     };
 
-    nextX += 140;
+    // nextX += 140;
+    this.advanceNextPosition();
     this.nodes.push(node);
 
     (this as any)._notifyAdd?.();
@@ -122,11 +170,14 @@ export class AudioEngine {
       //   sustain: 0.7,
       //   release: 0.2,
       // },
-      x: nextX,
-      y: 80,
+      x: this.nextX,
+      y: this.nextY,
+      // x: nextX,
+      // y: 80,
     };
 
-    nextX += 140;
+    // nextX += 140;
+    this.advanceNextPosition();
     this.nodes.push(node);
     (this as any)._notifyAdd?.();
 
@@ -182,9 +233,6 @@ export class AudioEngine {
     // Decay
     param.linearRampToValueAtTime(sustain, now + attack + decay);
   }
-
-
-
 
   playAll(patch: Patch, duration = 3) {
     const now = this.context.currentTime;
@@ -331,6 +379,12 @@ export class AudioEngine {
     }
 
     return null;
+  }
+
+
+
+  setWorkspaceElement(el: HTMLElement | null) {
+    this.workspaceEl = el;
   }
 
   setNodeFrequency(nodeId: string, frequency: number) {

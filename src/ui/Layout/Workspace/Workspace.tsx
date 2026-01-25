@@ -2,7 +2,7 @@
  * src/ui/Layout/Workspace/Workspace.tsx
  */
 
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import {
   DndContext,
   PointerSensor,
@@ -14,15 +14,26 @@ import type {
 } from "@dnd-kit/core";
 import { audioEngine } from "../../../audio/engineInstance";
 import { usePatch } from "../../../context/PatchContext";
+import { useWorkspace } from "../../../context/WorkspaceContext";
 import { WorkspaceNode } from "./WorkspaceNode";
 import { ConnectionLayer } from "./ConnectionLayer";
 
 
 export default function Workspace({ children }: { children: React.ReactNode }) {
+  // const workspaceRef = useRef<HTMLDivElement | null>(null);
+  // const workspaceRef = useRef<HTMLDivElement>(null);
+  const { workspaceRef } = useWorkspace();
   const nodeRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const { patch, setPatch, setSelectedNodeId } = usePatch();
   console.log("connections:", patch.connections);
+
+
+  useEffect(() => {
+    audioEngine.setWorkspaceElement(workspaceRef.current);
+  }, [workspaceRef.current]);
+
+
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -57,7 +68,7 @@ export default function Workspace({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <main className="workspace" style={{ position: "relative", height: "100%" }}>
+    <main ref={workspaceRef} className="workspace" style={{ position: "relative", height: "100%" }}>
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         {patch.nodes.map((node) => (
           <WorkspaceNode
