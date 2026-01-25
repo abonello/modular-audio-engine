@@ -13,10 +13,13 @@ import type {
   TargetConnectionType
 } from "../model/PatchTypes";
 
+import { midiNoteToName, midiNoteToFreq } from "./utils/midi";
+
 
 export class AudioEngine {
   private graphBuilt = false;
   private workspaceEl: HTMLElement | null = null;
+  private activePatch: Patch | null = null;
   private nodes: PatchNode[] = [];
   private webNodes: Map<string, AudioNode> = new Map();
   private context: AudioContext;
@@ -34,6 +37,8 @@ export class AudioEngine {
   private readonly MARGIN = 120;
 
   private activeReleases: Map<string, () => void> = new Map();
+  private onMidiNote?: (note: string) => void;
+  private onMidiVelocity?: (velocity: number) => void;
 
 
   constructor() {
@@ -60,6 +65,15 @@ export class AudioEngine {
     // Must be called from a user gesture
     await this.context.resume();
     this.started = true;
+  }
+
+  async initMIDI() {
+    if (!navigator.requestMIDIAccess) return;
+
+    const midiAccess = await navigator.requestMIDIAccess();
+    for (const input of midiAccess.inputs.values()) {
+      input.onmidimessage = this.handleMIDIMessage.bind(this);
+    }
   }
 
   private advanceNextPosition() {
@@ -165,17 +179,23 @@ export class AudioEngine {
     this.nodes = this.nodes.filter(n => n.id !== nodeId);
   }
 
-  private applyEnvelopeToParam(envNode: EnvelopeNode, param: AudioParam, now: number) {
+  private applyEnvelopeToParam(envNode: EnvelopeNode, param: AudioParam, now: number, velocity = 1) {
     const { attack, decay, sustain } = envNode.params;
+
+    // const attackLevel = attack * velocity;
+    const attackLevel = 1 * velocity;
+    const sustainLevel = sustain * velocity;
 
     param.cancelScheduledValues(now);
     param.setValueAtTime(0, now);
 
     // Attack
-    param.linearRampToValueAtTime(1, now + attack);
+    // param.linearRampToValueAtTime(1, now + attack);
+    param.linearRampToValueAtTime(attackLevel, now + attack);
 
     // Decay
-    param.linearRampToValueAtTime(sustain, now + attack + decay);
+    // param.linearRampToValueAtTime(sustain, now + attack + decay);
+    param.linearRampToValueAtTime(sustainLevel, now + attack + decay);
 
     // Return release callback
     return () => this.releaseEnvelopeOnParam(envNode, param, this.context.currentTime);
@@ -251,12 +271,20 @@ export class AudioEngine {
     this.buildPatchNodes(patch);
     this.connectPatch(patch);
     this.graphBuilt = true;
+
+    console.log(
+      "Gain nodes:",
+      patch.nodes.filter(n => n.type === "gain").map(n => ({
+        id: n.id,
+        gain: (this.webNodes.get(n.id) as GainNode)?.gain.value
+      }))
+    );
   }
 
 
   public noteOn(patch: Patch, frequency: number, velocity = 1) {
     const now = this.context.currentTime;
-    console.log("Velocity:", velocity);
+    // console.log("Velocity:", velocity);
 
     // build nodes once
     if (!this.graphBuilt) {
@@ -294,17 +322,23 @@ export class AudioEngine {
           const targetParam = this.getAudioParam(targetNode, c.target);
           if (!targetParam) return;
 
-          const releaseFn = this.applyEnvelopeToParam(envNode, targetParam, now);
+          const releaseFn = this.applyEnvelopeToParam(envNode, targetParam, now, velocity);
           this.activeReleases.set(c.id, releaseFn);
         });
   }
 
   public noteOff() {
+
+    console.log("MIDI NOTE OFF received");
     // call all release functions
     this.activeReleases.forEach((releaseFn, id) => {
+
+      console.log("releasing", id);
       releaseFn();
-      this.activeReleases.delete(id);
+      // this.activeReleases.delete(id);
     });
+
+    this.activeReleases.clear();
   }
 
   stopAllOscillators() {
@@ -430,6 +464,42 @@ export class AudioEngine {
   }
 
 
+  handleMIDIMessage(message: MIDIMessageEvent) {
+    if (!message.data) return;
+
+    const [status, note, velocity] = message.data;
+    const type = status & 0xf0;
+
+    if (type === 0x90 && velocity > 0) {
+      // NOTE ON
+      const noteName = midiNoteToName(note);
+      this.onMIDINote(noteName, velocity);
+
+      const freq = midiNoteToFreq(note);
+      if (!this.activePatch) return;
+      this.noteOn(this.activePatch, freq, velocity / 127);
+
+    } else if (type === 0x80 || (type === 0x90 && velocity === 0)) {
+      // NOTE OFF
+      console.log("MIDI NOTE OFF received");
+      this.onMIDINoteOff();
+      this.noteOff();
+    }
+  }
+
+
+  onMIDINote(noteName: string, velocity: number) {
+    // replace these with your UI state update method
+    if (this.onMidiNote) this.onMidiNote(noteName);
+    if (this.onMidiVelocity) this.onMidiVelocity(velocity);
+  }
+
+  onMIDINoteOff() {
+    if (this.onMidiNote) this.onMidiNote("--");
+    if (this.onMidiVelocity) this.onMidiVelocity(0);
+  }
+
+
   get isStarted() {
     return this.started;
   }
@@ -534,5 +604,17 @@ export class AudioEngine {
     if (!node || node.type !== "envelope") return;
 
     node.params = { ...node.params, ...params };
+  }
+
+  setActivePatch(patch: Patch) {
+    this.activePatch = patch;
+  }
+
+  setMidiCallbacks(
+    onMidiNote: (note: string) => void,
+    onMidiVelocity: (velocity: number) => void
+  ) {
+    this.onMidiNote = onMidiNote;
+    this.onMidiVelocity = onMidiVelocity;
   }
 }

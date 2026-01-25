@@ -94,6 +94,8 @@ export default function Workspace({ children }: { children: React.ReactNode }) {
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
 
+    audioEngine.setActivePatch(patch);
+
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);

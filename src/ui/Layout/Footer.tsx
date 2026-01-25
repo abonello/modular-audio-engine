@@ -2,15 +2,17 @@
  * src/ui/Layout/Footer.tsx
  */
 
-import {useState, useEffect} from "react";
+import {useState, useEffect, useContext} from "react";
 import { audioEngine } from "../../audio/engineInstance";
 import { usePatch } from "../../context/PatchContext";
 import { useConnectionEdit } from "../../context/ConnectionEditContext";
+import { MidiContext } from "../../context/MidiContext";
 
 export default function Footer() {
   const [level, setLevel] = useState(0);
   const { patch } = usePatch();
   const { editConnectionsMode, setEditConnectionsMode } = useConnectionEdit();
+  const { note, velocity } = useContext(MidiContext);
 
   useEffect(() => {
     let raf: number;
@@ -38,8 +40,8 @@ export default function Footer() {
       </div>
 
       <div className="footerRight">
-        <span>Note: --</span>
-        <span>Velocity: --</span>
+        <span>Note: {note}</span>
+        <span>Velocity: {velocity}</span>
 
         <button
           onClick={() => setEditConnectionsMode((v) => !v)}
