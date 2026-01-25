@@ -256,6 +256,7 @@ export class AudioEngine {
 
   public noteOn(patch: Patch, frequency: number, velocity = 1) {
     const now = this.context.currentTime;
+    console.log("Velocity:", velocity);
 
     // build nodes once
     if (!this.graphBuilt) {
@@ -263,10 +264,6 @@ export class AudioEngine {
       this.connectPatch(patch);
       this.graphBuilt = true;
     }
-
-    console.log("noteOn called", { frequency, nodes: patch.nodes.length, timeNow: now });
-    console.log("webNodes", this.webNodes);
-    console.log("connections", patch.connections);
 
     // 1) Set frequency for all oscillators
     patch.nodes
