@@ -330,7 +330,7 @@ export class AudioEngine {
 
   public noteOff() {
     // call all release functions
-    this.activeReleases.forEach((releaseFn, id) => {
+    this.activeReleases.forEach((releaseFn) => {
       releaseFn();
     });
 
