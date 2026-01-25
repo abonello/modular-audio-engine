@@ -186,7 +186,6 @@ export class AudioEngine {
   private applyEnvelopeToParam(envNode: EnvelopeNode, param: AudioParam, now: number, velocity = 1) {
     const { attack, decay, sustain } = envNode.params;
 
-    // const attackLevel = attack * velocity;
     const attackLevel = 1 * velocity;
     const sustainLevel = sustain * velocity;
 
@@ -194,11 +193,9 @@ export class AudioEngine {
     param.setValueAtTime(0, now);
 
     // Attack
-    // param.linearRampToValueAtTime(1, now + attack);
     param.linearRampToValueAtTime(attackLevel, now + attack);
 
     // Decay
-    // param.linearRampToValueAtTime(sustain, now + attack + decay);
     param.linearRampToValueAtTime(sustainLevel, now + attack + decay);
 
     // Return release callback
@@ -288,7 +285,6 @@ export class AudioEngine {
 
   public noteOn(patch: Patch, frequency: number, velocity = 1) {
     const now = this.context.currentTime;
-    // console.log("Velocity:", velocity);
 
     // build nodes once
     if (!this.graphBuilt) {
@@ -333,14 +329,9 @@ export class AudioEngine {
   }
 
   public noteOff() {
-
-    console.log("MIDI NOTE OFF received");
     // call all release functions
     this.activeReleases.forEach((releaseFn, id) => {
-
-      console.log("releasing", id);
       releaseFn();
-      // this.activeReleases.delete(id);
     });
 
     this.activeReleases.clear();
