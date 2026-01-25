@@ -109,12 +109,8 @@ export function PatchProvider({ children }: { children: React.ReactNode }) {
         id: crypto.randomUUID(),
         from: fromId,
         to: toId,
-        // type: fromNode?.type === "envelope" ? "control" : "audio",
         type: isControl ? "control" : "audio",
         target: isControl ? "gain" : undefined,
-        // type: CONTROL_NODE_TYPES.includes(fromNode?.type as any)
-        //   ? "control"
-        //   : "audio",
       };
       
       console.log("AB", `${isControl ? "this is a control" : "this is audio"}`)

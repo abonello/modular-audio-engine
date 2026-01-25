@@ -47,7 +47,6 @@ export default function Footer() {
         >
           {editConnectionsMode ? "Exit Cable Edit" : "Edit Cables"}
         </button>
-        {/* <button onClick={() => audioEngine.stopAllOscillators()}> */}
         <button className="btnWarn" onClick={() => audioEngine.rebuildPatchGraph(patch)}>
           Rebuild Audio Graph
         </button>

@@ -4,7 +4,6 @@
 
 import { usePatch } from "../../../context/PatchContext";
 import { useConnectionEdit } from "../../../context/ConnectionEditContext";
-import { CONTROL_NODE_TYPES } from "../../../model/PatchTypes";
 
 type NodeRefs = {
   current: Record<string, HTMLDivElement | null>;
@@ -29,12 +28,6 @@ export function ConnectionLayer({
         pointerEvents: "none",
       }}
     >
-      {/* <defs>
-        <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
-          <path d="M0,0 L0,6 L6,3 Z" fill="white" />
-        </marker>
-      </defs> */}
-
       <defs>
         <marker
           id="arrow-audio"
@@ -132,17 +125,11 @@ export function ConnectionLayer({
               y1={y1}
               x2={x2}
               y2={y2}
-              // stroke="white"
               stroke={c.type === "control" ? "yellow" : "white"}
               strokeWidth="2"
               strokeDasharray={c.type === "control" ? "6 4" : "0"}
-              // markerEnd="url(#arrow)"
               markerEnd={c.type === "control" ? "url(#arrow-control)" : "url(#arrow-audio)"}
               style={{ pointerEvents: editConnectionsMode ? "auto" : "none" }}
-              // onClick={(e) => {
-              //   e.stopPropagation();
-              //   if (editConnectionsMode) deleteConnection(c.id);
-              // }}
             />
           </>
         );

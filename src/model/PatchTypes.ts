@@ -14,10 +14,8 @@ export type NodeType =
 export const CONTROL_NODE_TYPES = ["envelope", "lfo"] as const;
 export type ControlNodeType = (typeof CONTROL_NODE_TYPES)[number];
 
-// export type Waveform = "sine" | "square" | "sawtooth" | "triangle";
 export type Waveform = Exclude<OscillatorType, "custom">;
 
-// export type FilterType = "lowpass" | "highpass" | "bandpass";
 export type FilterType = "lowpass" | "highpass";
 
 export type ConnectionType = "audio" | "control";
