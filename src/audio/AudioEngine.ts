@@ -3,12 +3,21 @@
  * This is the local backend that interprets the JSON.
  */
 
-import type { Patch, PatchNode, Waveform, FilterType } from "../model/PatchTypes";
+import type {
+  Patch,
+  PatchNode,
+  EnvelopeNode,
+  Waveform,
+  FilterType,
+  EnvelopeParams,
+  TargetConnectionType
+} from "../model/PatchTypes";
 
 let nextX = 40;
 
 export class AudioEngine {
   private nodes: PatchNode[] = [];
+  private webNodes: Map<string, AudioNode> = new Map();
   private context: AudioContext;
   private analyser: AnalyserNode;
   private analyserData: Uint8Array<ArrayBuffer>;
@@ -97,15 +106,94 @@ export class AudioEngine {
     return node;
   }
 
+  addEnvelope() {
+    const node: PatchNode = {
+      id: crypto.randomUUID(),
+      type: "envelope",
+      params: {
+        attack: 1.5,
+        decay: 0.5,
+        sustain: 0.1,
+        release: 0.2,
+      },
+      // params: {
+      //   attack: 0.05,
+      //   decay: 0.1,
+      //   sustain: 0.7,
+      //   release: 0.2,
+      // },
+      x: nextX,
+      y: 80,
+    };
+
+    nextX += 140;
+    this.nodes.push(node);
+    (this as any)._notifyAdd?.();
+
+    return node;
+  }
+
+
   deleteNode(nodeId: string) {
     this.nodes = this.nodes.filter(n => n.id !== nodeId);
   }
+
+
+  // private triggerEnvelope(nodeId: string) {
+  //   const node = this.nodes.find(n => n.id === nodeId);
+  //   if (!node || node.type !== "envelope") return;
+
+  //   const envGain = this.webNodes.get(nodeId) as GainNode | undefined;
+  //   if (!envGain) return;
+
+  //   const now = this.context.currentTime;
+  //   const { attack, decay, sustain, release } = node.params;
+
+  //   envGain.gain.cancelScheduledValues(now);
+  //   envGain.gain.setValueAtTime(0, now);
+
+  //   // Attack
+  //   envGain.gain.linearRampToValueAtTime(1, now + attack);
+
+  //   // Decay
+  //   envGain.gain.linearRampToValueAtTime(sustain, now + attack + decay);
+
+  //   // Release
+  //   const releaseStart = now + attack + decay; 
+  //   envGain.gain.linearRampToValueAtTime(0, releaseStart + release);
+  // }
+
+  // private connectControl(controlNode: AudioNode, targetParam: AudioParam) {
+  //   // For now, we only support Envelope nodes.
+  //   // The envelope output will be connected to the target parameter.
+
+  //   controlNode.connect(targetParam);
+  // }
+
+  private applyEnvelopeToParam(envNode: EnvelopeNode, param: AudioParam, now: number) {
+    const { attack, decay, sustain } = envNode.params;
+
+    param.cancelScheduledValues(now);
+    param.setValueAtTime(0, now);
+
+    // Attack
+    param.linearRampToValueAtTime(1, now + attack);
+
+    // Decay
+    param.linearRampToValueAtTime(sustain, now + attack + decay);
+  }
+
+
+
 
   playAll(patch: Patch, duration = 3) {
     const now = this.context.currentTime;
 
     // Map patch nodes to WebAudio objects
-    const webNodes = new Map<string, AudioNode>();
+    // const webNodes = new Map<string, AudioNode>();
+    // this.webNodes = new Map();
+    // Reset web nodes map BEFORE building new nodes
+    this.webNodes.clear();
 
     // First pass: create WebAudio nodes
     patch.nodes.forEach((n) => {
@@ -113,17 +201,17 @@ export class AudioEngine {
         const osc = this.context.createOscillator();
         osc.type = (n.params?.waveform as OscillatorType) ?? "sine";
         osc.frequency.value = (n.params?.frequency as number) ?? 440;
-        webNodes.set(n.id, osc);
+        this.webNodes.set(n.id, osc);
       }
 
       if (n.type === "gain") {
         const g = this.context.createGain();
         g.gain.value = (n.params?.value as number) ?? 0.5;
-        webNodes.set(n.id, g);
+        this.webNodes.set(n.id, g);
       }
 
       if (n.type === "destination") {
-        webNodes.set(n.id, this.destinationInput);
+        this.webNodes.set(n.id, this.destinationInput);
       }
 
       if (n.type === "filter") {
@@ -131,25 +219,68 @@ export class AudioEngine {
         filter.type = n.params.type;
         filter.frequency.value = n.params.cutoff;
         filter.Q.value = n.params.resonance;
-        webNodes.set(n.id, filter);
+        this.webNodes.set(n.id, filter);
       }
+
+      // if (n.type === "envelope") {
+      //   const envGain = this.context.createGain();
+      //   envGain.gain.value = 0; // starts silent
+      //   this.webNodes.set(n.id, envGain);
+      // }
     });
 
     // Second pass: connect according to patch.connections
-    patch.connections.forEach((c) => {
-      const fromNode = webNodes.get(c.from);
-      const toNode = webNodes.get(c.to);
+    // patch.connections.forEach((c) => {
+    //   const fromNode = webNodes.get(c.from);
+    //   const toNode = webNodes.get(c.to);
 
-      if (fromNode && toNode) {
+    //   if (fromNode && toNode) {
+    //     fromNode.connect(toNode);
+    //   }
+    // });
+    patch.connections.forEach((c) => {
+      // const fromNode = this.webNodes.get(c.from);
+      // const fromNode = patch.nodes.find(n => n.id === c.from);
+      const toNode = this.webNodes.get(c.to);
+
+      // if (!fromNode || !toNode) return;
+      if (!toNode) return;
+
+      if (c.type === "audio") {
+        const fromNode = this.webNodes.get(c.from);
+        if (!fromNode) return;
         fromNode.connect(toNode);
       }
+
+      if (c.type === "control") {
+        const envNode = patch.nodes.find(n => n.id === c.from);
+        if (!envNode || envNode.type !== "envelope") return;
+
+        const targetParam = this.getAudioParam(toNode, c.target);
+        if (!targetParam) {
+          console.warn(`Control connection target missing or invalid for connection ${c.id}`);
+          return;
+        }
+
+        // this.connectControl(fromNode, targetParam);
+
+        // trigger envelope
+        // this.triggerEnvelope(c.from);
+
+        this.applyEnvelopeToParam(envNode, targetParam, now);
+      }
     });
+
+    // after connecting all nodes... / before oscillators play
+    // patch.nodes
+    //   .filter(n => n.type === "envelope")
+    //   .forEach(n => this.triggerEnvelope(n.id));
 
     // start all oscillators
     patch.nodes
       .filter(n => n.type === "oscillator")
       .forEach((n) => {
-        const osc = webNodes.get(n.id) as OscillatorNode;
+        const osc = this.webNodes.get(n.id) as OscillatorNode;
         osc.start(now);
         osc.stop(now + duration);
       });
@@ -180,7 +311,28 @@ export class AudioEngine {
     return rms;
   }
 
-  
+  private getAudioParam(node: AudioNode, target?: TargetConnectionType): AudioParam | null {
+    if (!target) return null;
+
+    // Gain node
+    if (node instanceof GainNode && target === "gain") {
+      return node.gain;
+    }
+
+    // Oscillator node
+    if (node instanceof OscillatorNode && target === "frequency") {
+      return node.frequency;
+    }
+
+    // Filter node
+    if (node instanceof BiquadFilterNode) {
+      if (target === "cutoff") return node.frequency;
+      if (target === "resonance") return node.Q;
+    }
+
+    return null;
+  }
+
   setNodeFrequency(nodeId: string, frequency: number) {
     const node = this.nodes.find(n => n.id === nodeId);
 
@@ -227,5 +379,12 @@ export class AudioEngine {
       cutoff,
       resonance,
     };
+  }
+
+  setEnvelopeParams(nodeId: string, params: EnvelopeParams) {
+    const node = this.nodes.find((n) => n.id === nodeId);
+    if (!node || node.type !== "envelope") return;
+
+    node.params = { ...node.params, ...params };
   }
 }

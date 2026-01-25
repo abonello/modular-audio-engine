@@ -5,7 +5,13 @@
 import { useEffect, useState } from "react";
 import { usePatch } from "../context/PatchContext";
 import { audioEngine } from "../audio/engineInstance";
-import { isOscillatorNode, isGainNode, isDestinationNode, isFilterNode} from "../model/PatchTypes";
+import {
+  isOscillatorNode,
+  isGainNode,
+  isDestinationNode,
+  isFilterNode,
+  isEnvelopeNode
+} from "../model/PatchTypes";
 import type { Waveform, FilterType } from "../model/PatchTypes";
 import { sliderToFreq, freqToSlider, SLIDER_MAX } from "../utils/frequency";
 
@@ -17,6 +23,11 @@ export default function NodeInspector() {
   const [filterType, setFilterType] = useState<"lowpass" | "highpass">("lowpass");
   const [cutoff, setCutoff] = useState<number>(1000);
   const [resonance, setResonance] = useState<number>(1.5);
+  const [attack, setAttack] = useState<number>(0.05);
+  const [decay, setDecay] = useState<number>(0.1);
+  const [sustain, setSustain] = useState<number>(0.7);
+  const [release, setRelease] = useState<number>(0.2);
+
 
   useEffect(() => {
     if (!selectedNode) return;
@@ -30,6 +41,13 @@ export default function NodeInspector() {
       setFilterType(selectedNode.params.type);
       setCutoff(selectedNode.params.cutoff);
       setResonance(selectedNode.params.resonance);
+    }
+
+    if (isEnvelopeNode(selectedNode)) {
+      setAttack(selectedNode.params.attack);
+      setDecay(selectedNode.params.decay);
+      setSustain(selectedNode.params.sustain);
+      setRelease(selectedNode.params.release);
     }
   }, [selectedNodeId]);
 
@@ -208,6 +226,96 @@ export default function NodeInspector() {
       </div>
     );
   }
+
+  // ---- ENVELOPE UI ----
+  if (isEnvelopeNode(selectedNode)) {
+  return (
+    <div className="bladeRight">
+      <div className="bladeHeader">Kind: Envelope</div>
+
+      <div className="bladeItem">
+        Attack:
+        <input
+          type="range"
+          min={0}
+          max={2}
+          step={0.01}
+          value={attack}
+          onChange={(e) => setAttack(parseFloat(e.target.value))}
+        />
+        <div>{attack.toFixed(2)}s</div>
+      </div>
+
+      <div className="bladeItem">
+        Decay:
+        <input
+          type="range"
+          min={0}
+          max={2}
+          step={0.01}
+          value={decay}
+          onChange={(e) => setDecay(parseFloat(e.target.value))}
+        />
+        <div>{decay.toFixed(2)}s</div>
+      </div>
+
+      <div className="bladeItem">
+        Sustain:
+        <input
+          type="range"
+          min={0}
+          max={1}
+          step={0.01}
+          value={sustain}
+          onChange={(e) => setSustain(parseFloat(e.target.value))}
+        />
+        <div>{(sustain * 100).toFixed(0)}%</div>
+      </div>
+
+      <div className="bladeItem">
+        Release:
+        <input
+          type="range"
+          min={0}
+          max={3}
+          step={0.01}
+          value={release}
+          onChange={(e) => setRelease(parseFloat(e.target.value))}
+        />
+        <div>{release.toFixed(2)}s</div>
+      </div>
+
+      <div className="bladeButtonWrapper">
+        <button
+          onClick={() => {
+            setPatch((prev) => ({
+              ...prev,
+              nodes: prev.nodes.map((n) =>
+                n.id === selectedNode.id && isEnvelopeNode(n)
+                  ? { ...n, params: { attack, decay, sustain, release } }
+                  : n
+              ),
+            }));
+
+            audioEngine.setEnvelopeParams(selectedNode.id, {
+              attack,
+              decay,
+              sustain,
+              release,
+            });
+          }}
+        >
+          Apply
+        </button>
+
+        <button className="btnDelete" onClick={() => deleteNode(selectedNode.id)}>
+          Delete Node
+        </button>
+      </div>
+    </div>
+  );
+}
+
 
 
   // ---- Destination UI ----

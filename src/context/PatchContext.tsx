@@ -5,6 +5,7 @@
 
 
 import React, { createContext, useContext, useState } from "react";
+import { CONTROL_NODE_TYPES } from "../model/PatchTypes";
 import type { Patch, PatchConnection } from "../model/PatchTypes";
 import { audioEngine } from "../audio/engineInstance";
 
@@ -21,6 +22,7 @@ type PatchContextType = {
   addOscillator: (frequency?: number) => void;
   addGain: (gain?: number) => void;
   addFilter: () => void;
+  addEnvelope: () => void;
 };
 
 const defaultPatch: Patch = {
@@ -83,19 +85,40 @@ export function PatchProvider({ children }: { children: React.ReactNode }) {
     }));
   };
 
+  const addEnvelope = () => {
+    const node = audioEngine.addEnvelope();
+    setPatch((prev) => ({
+      ...prev,
+      nodes: [...prev.nodes, node],
+    }));
+  };
+
+  
   const addConnection = (fromId: string, toId: string) => {
     setPatch((prev) => {
       const exists = prev.connections.some(
         (c) => c.from === fromId && c.to === toId
       );
-
+      
       if (exists) return prev;
-
+      
+      const fromNode = prev.nodes.find(n => n.id === fromId);
+      const isControl = CONTROL_NODE_TYPES.includes(fromNode?.type as any);
+      
       const connection: PatchConnection = {
         id: crypto.randomUUID(),
         from: fromId,
         to: toId,
+        // type: fromNode?.type === "envelope" ? "control" : "audio",
+        type: isControl ? "control" : "audio",
+        target: isControl ? "gain" : undefined,
+        // type: CONTROL_NODE_TYPES.includes(fromNode?.type as any)
+        //   ? "control"
+        //   : "audio",
       };
+      
+      console.log("AB", `${isControl ? "this is a control" : "this is audio"}`)
+      console.log("connection type:", connection.type, connection.target);
 
       return {
         ...prev,
@@ -123,6 +146,7 @@ export function PatchProvider({ children }: { children: React.ReactNode }) {
       addOscillator,
       addGain,
       addFilter,
+      addEnvelope,
     }}>
       {children}
     </PatchContext.Provider>

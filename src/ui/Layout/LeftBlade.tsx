@@ -9,19 +9,12 @@ import { usePatch } from "../../context/PatchContext";
 
 export default function LeftBlade({ children }: { children: React.ReactNode }) {
   const { leftOpen } = useBlade();
-  const { addOscillator, addGain, addFilter } = usePatch();
+  const { addOscillator, addGain, addFilter, addEnvelope } = usePatch();
 
-  const handleAddOsc = () => {
-    addOscillator();
-  };
-
-  const handleAddGain = () => {
-    addGain();
-  };
-
-  const handleAddFilter = () => {
-    addFilter();
-  };
+  const handleAddOsc = () => {addOscillator();};
+  const handleAddGain = () => {addGain();};
+  const handleAddFilter = () => {addFilter();};
+  const handleAddEnvelope = () => {addEnvelope();}
 
   return (
     <aside className={`blade left ${leftOpen ? "open" : "closed"}`}>
@@ -34,6 +27,9 @@ export default function LeftBlade({ children }: { children: React.ReactNode }) {
       </div>
       <div className="toolItem" onClick={handleAddFilter}>
         🎚 Filter
+      </div>
+      <div className="toolItem" onClick={handleAddEnvelope}>
+        ✨ Envelope
       </div>
       {children}
     </aside>
