@@ -53,8 +53,13 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
+
+.btnWarn {
+  background-color: #e7a61a;
+  color: #1b1b1b;
+}
 .btnDelete {
-  background-color: #ed4233
+  background-color: #ed4233;
 }
 
 @media (prefers-color-scheme: light) {

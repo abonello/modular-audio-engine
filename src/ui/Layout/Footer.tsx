@@ -4,10 +4,12 @@
 
 import {useState, useEffect} from "react";
 import { audioEngine } from "../../audio/engineInstance";
+import { usePatch } from "../../context/PatchContext";
 import { useConnectionEdit } from "../../context/ConnectionEditContext";
 
 export default function Footer() {
   const [level, setLevel] = useState(0);
+  const { patch } = usePatch();
   const { editConnectionsMode, setEditConnectionsMode } = useConnectionEdit();
 
   useEffect(() => {
@@ -44,6 +46,13 @@ export default function Footer() {
           style={{ marginLeft: 12 }}
         >
           {editConnectionsMode ? "Exit Cable Edit" : "Edit Cables"}
+        </button>
+        {/* <button onClick={() => audioEngine.stopAllOscillators()}> */}
+        <button className="btnWarn" onClick={() => audioEngine.rebuildPatchGraph(patch)}>
+          Rebuild Audio Graph
+        </button>
+        <button className="btnDelete" onClick={() => audioEngine.panic()}>
+          PANIC / ALL NOTES OFF
         </button>
       </div>
     </footer>
