@@ -2,7 +2,7 @@
  * src/ui/Layout/Layout.tsx
  */
 
-import { useContext, useEffect } from "react";
+import { useRef, useContext, useEffect } from "react";
 import { MidiContext } from "../../context/MidiContext";
 import { audioEngine } from "../../audio/engineInstance";
 import Header from "./Header";
@@ -15,8 +15,12 @@ import Footer from "./Footer";
 
 export default function Layout() {
   const { setNote, setVelocity } = useContext(MidiContext);
+  const midiInitRef = useRef(false);
 
   useEffect(() => {
+    if (midiInitRef.current) return;
+    midiInitRef.current = true;
+
     audioEngine.setMidiCallbacks(setNote, setVelocity);
     audioEngine.initMIDI();
   }, [setNote, setVelocity]);

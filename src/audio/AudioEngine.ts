@@ -37,6 +37,7 @@ export class AudioEngine {
   private readonly MARGIN = 120;
 
   private activeReleases: Map<string, () => void> = new Map();
+  private midiInitialized = false;
   private onMidiNote?: (note: string) => void;
   private onMidiVelocity?: (velocity: number) => void;
 
@@ -68,6 +69,9 @@ export class AudioEngine {
   }
 
   async initMIDI() {
+    if (this.midiInitialized) return;
+    this.midiInitialized = true;
+
     if (!navigator.requestMIDIAccess) return;
 
     const midiAccess = await navigator.requestMIDIAccess();
@@ -298,6 +302,7 @@ export class AudioEngine {
       .filter(n => n.type === "oscillator")
       .forEach(n => {
         const osc = this.webNodes.get(n.id) as OscillatorNode;
+        console.log(n.id, osc.frequency.value, osc.detune.value);
         if (!osc) return;
         osc.type = (n.params?.waveform as OscillatorType) ?? "sine";
         osc.frequency.setValueAtTime(frequency, now);
