@@ -108,24 +108,43 @@ export function ConnectionLayer({
         y2 -= wsRect.top;
 
         return (
-          <line
-            key={c.id}
-            x1={x1}
-            y1={y1}
-            x2={x2}
-            y2={y2}
-            // stroke="white"
-            stroke={c.type === "control" ? "yellow" : "white"}
-            strokeWidth="2"
-            strokeDasharray={c.type === "control" ? "6 4" : "0"}
-            // markerEnd="url(#arrow)"
-            markerEnd={c.type === "control" ? "url(#arrow-control)" : "url(#arrow-audio)"}
-            style={{ pointerEvents: editConnectionsMode ? "auto" : "none" }}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (editConnectionsMode) deleteConnection(c.id);
-            }}
-          />
+          <>
+            {/* Invisible hit area */}
+            <line
+              key={`${c.id}-hit`}
+              x1={x1}
+              y1={y1}
+              x2={x2}
+              y2={y2}
+              stroke="transparent"
+              strokeWidth={12}
+              style={{ pointerEvents: editConnectionsMode ? "auto" : "none" }}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (editConnectionsMode) deleteConnection(c.id);
+              }}
+            />
+
+            {/* Visible cable */}
+            <line
+              key={c.id}
+              x1={x1}
+              y1={y1}
+              x2={x2}
+              y2={y2}
+              // stroke="white"
+              stroke={c.type === "control" ? "yellow" : "white"}
+              strokeWidth="2"
+              strokeDasharray={c.type === "control" ? "6 4" : "0"}
+              // markerEnd="url(#arrow)"
+              markerEnd={c.type === "control" ? "url(#arrow-control)" : "url(#arrow-audio)"}
+              style={{ pointerEvents: editConnectionsMode ? "auto" : "none" }}
+              // onClick={(e) => {
+              //   e.stopPropagation();
+              //   if (editConnectionsMode) deleteConnection(c.id);
+              // }}
+            />
+          </>
         );
       })}
     </svg>
